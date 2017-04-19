@@ -1,0 +1,4 @@
+学习Spring Boot
+http://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/#getting-started-first-application
+
+learn ：13.2.1 Inheriting the starter parent
