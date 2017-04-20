@@ -26,8 +26,8 @@ public class RegisterController {
         this.registerService = registerService;
     }
 
-    @RequestMapping(value = "/register", method = RequestMethod.POST)
     @ResponseBody
+    @RequestMapping(value = "/register", method = RequestMethod.POST)
 //    public void insert(@PathVariable String username, @PathVariable String password, @PathVariable String email, @PathVariable String number) {
     public Object insert(@RequestBody User user) {
         //@PathVariable String username,@PathVariable String password, @PathVariable String email, @PathVariable String number
