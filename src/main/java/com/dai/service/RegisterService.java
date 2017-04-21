@@ -15,7 +15,6 @@ public class RegisterService {
     private RegisterMapper registerMapper;
 
     public void insertData(User user) {
-//        System.out.println("id = " + id);
         registerMapper.insertData(user);
     }
 

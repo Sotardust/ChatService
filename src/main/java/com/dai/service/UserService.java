@@ -23,8 +23,4 @@ public class UserService {
     public List<User> findUsername() {
         return userMapper.findUserName();
     }
-
-//    public List findAll() {
-//        return userMapper.findAll();
-//    }
 }

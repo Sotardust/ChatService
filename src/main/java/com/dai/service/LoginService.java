@@ -5,7 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Administrator on 2017/4/19 0019.
@@ -21,13 +23,20 @@ public class LoginService {
         return users;
     }
 
-
-    public boolean isLogin(String username, String password) {
-        System.out.println("username = " + username);
-        System.out.println("password = " + password);
-        System.out.println("loginMapper.findPwdByUsername(username) = " + loginMapper.findPwdByUsername(username));
-
-        return password.equals(loginMapper.findPwdByUsername(username));
+    public Object loginResult(String username, String password) {
+        Map<String, String> result = new HashMap<>();
+        String queryPwd = loginMapper.findPwdByUsername(username);
+        if (queryPwd == null) {
+            result.put("success", "0");
+            result.put("error", "用户名错误");
+        } else if (!password.equals(queryPwd)) {
+            result.put("success", "0");
+            result.put("error", "密码错误");
+        } else {
+            result.put("success", "1");
+            result.put("error", "");
+        }
+        return result;
     }
 
 }
