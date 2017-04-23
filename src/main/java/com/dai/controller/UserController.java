@@ -34,13 +34,6 @@ public class UserController {
         return result;
     }
 
-//    @RequestMapping(value = "/all")
-//    @ResponseBody
-//    public List findAll() {
-//        return userService.findAll();
-//    }
-
-
     @RequestMapping(value = "/list")
     @ResponseBody
     public Object getList() {
