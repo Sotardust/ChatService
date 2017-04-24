@@ -1,9 +1,9 @@
 package com.dai.bean;
 
 /**
- * Created by Administrator on 2017/4/23 0023.
+ * Created by Administrator on 2017/4/22 0022.
  */
-public class SendMessage {
+public class ReceivedMessage {
 
     private String roomId;   //房间Id
     private String userId;   //用户Id(username)

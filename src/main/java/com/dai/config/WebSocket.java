@@ -1,7 +1,7 @@
 package com.dai.config;
 
-import com.dai.bean.ClientMessage;
-import com.dai.bean.ServerMessage;
+import com.dai.bean.ReceivedMessage;
+import com.dai.bean.SendMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 
@@ -31,9 +31,9 @@ public class WebSocket {
         System.out.println("session.getRequestParameterMap() = " + session.getRequestParameterMap());
         System.out.println("session.getRequestURI() = " + session.getRequestURI());
         System.out.println("session.getPathParameters() = " + session.getPathParameters());
-        System.out.println("有新链接加入!当前在线人数为" + getOnlineCount());
         webSocketSet.add(this);
         addOnlineCount();
+        System.out.println("有新链接加入!当前在线人数为" + getOnlineCount());
     }
 
     @OnClose
@@ -48,24 +48,23 @@ public class WebSocket {
         System.out.println("来自客户端的消息:" + message);
 
         ObjectMapper objectMapper = new ObjectMapper();
-        ClientMessage clientMessage = objectMapper.readValue(message, ClientMessage.class);
-        System.out.println("clientMessage.getCmd() = " + clientMessage.getCmd());
-        System.out.println("clientMessage.getCtime() = " + clientMessage.getCtime());
-        System.out.println("clientMessage.getMsg() = " + clientMessage.getMsg());
-        System.out.println("clientMessage.getPost() = " + clientMessage.getPost());
-        System.out.println("clientMessage.getRoomid() = " + clientMessage.getRoomid());
+        ReceivedMessage receivedMessage = objectMapper.readValue(message, ReceivedMessage.class);
+        System.out.println("clientMessage.getCmd() = " + receivedMessage.getUserId());
+        System.out.println("clientMessage.getCtime() = " + receivedMessage.getRoomId());
+        System.out.println("clientMessage.getMsg() = " + receivedMessage.getTimeStamp());
+        System.out.println("clientMessage.getPost() = " + receivedMessage.getMessage());
 
-        ServerMessage serverMessage = new ServerMessage();
-        serverMessage.setUid("id1");
-        serverMessage.setTime(clientMessage.getCtime());
-        serverMessage.setRoomid(clientMessage.getRoomid());
-        serverMessage.setMsg(clientMessage.getMsg());
-        serverMessage.setAppid("6666");
-        serverMessage.setCmd(clientMessage.getCmd());
-        System.out.println("serverMessa = " + serverMessage.toString());
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setMessage(receivedMessage.getMessage());
+        sendMessage.setRoomId(receivedMessage.getRoomId());
+        sendMessage.setUserId(receivedMessage.getUserId());
+        sendMessage.setTimeStamp(receivedMessage.getTimeStamp());
+        ObjectMapper mapper = new ObjectMapper();
+        String value = mapper.writeValueAsString(sendMessage);
+        System.out.println("sendMessage = " + value);
         // 群发消息
         for (WebSocket item : webSocketSet) {
-            item.sendMessage(serverMessage.toString());
+            item.sendMessage(value);
         }
     }
 
