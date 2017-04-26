@@ -2,8 +2,11 @@ package com.dai.config;
 
 import com.dai.bean.ReceivedMessage;
 import com.dai.bean.SendMessage;
+import com.dai.service.ChatService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
@@ -16,14 +19,21 @@ import java.util.concurrent.CopyOnWriteArraySet;
 /**
  * Created by Administrator on 2017/4/22 0022.
  */
-@ServerEndpoint("/websocket")
+@Service
 @Component
+@ServerEndpoint("/websocket")
 public class WebSocket {
+
+    @Autowired
+    private ChatService chatService ;
     private static int onlineCount = 0;
 
     private static CopyOnWriteArraySet<WebSocket> webSocketSet = new CopyOnWriteArraySet<>();
 
     private Session session;
+
+    public WebSocket() {
+    }
 
     @OnOpen
     public void onOpen(Session session) {
@@ -46,7 +56,6 @@ public class WebSocket {
     @OnMessage
     public void onMessage(String message, Session session) throws IOException {
         System.out.println("来自客户端的消息:" + message);
-
         ObjectMapper objectMapper = new ObjectMapper();
         ReceivedMessage receivedMessage = objectMapper.readValue(message, ReceivedMessage.class);
         System.out.println("clientMessage.getCmd() = " + receivedMessage.getUserId());
@@ -54,6 +63,7 @@ public class WebSocket {
         System.out.println("clientMessage.getMsg() = " + receivedMessage.getTimeStamp());
         System.out.println("clientMessage.getPost() = " + receivedMessage.getMessage());
 
+        chatService.insert(receivedMessage);
         SendMessage sendMessage = new SendMessage();
         sendMessage.setMessage(receivedMessage.getMessage());
         sendMessage.setRoomId(receivedMessage.getRoomId());
@@ -66,23 +76,23 @@ public class WebSocket {
         for (WebSocket item : webSocketSet) {
             item.sendMessage(value);
         }
+
     }
 
-    public void sendMessage(String message) throws IOException {
+    private void sendMessage(String message) throws IOException {
         this.session.getBasicRemote().sendText(message);
     }
 
-    public static synchronized int getOnlineCount() {
+    private static synchronized int getOnlineCount() {
         return WebSocket.onlineCount;
     }
 
-    public static synchronized void addOnlineCount() {
+    private static synchronized void addOnlineCount() {
         WebSocket.onlineCount++;
     }
 
-    public static synchronized void subOnlineCount() {
+    private static synchronized void subOnlineCount() {
         WebSocket.onlineCount--;
     }
-
 
 }
