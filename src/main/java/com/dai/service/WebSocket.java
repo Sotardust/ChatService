@@ -1,11 +1,9 @@
-package com.dai.config;
+package com.dai.service;
 
 import com.dai.bean.ReceivedMessage;
 import com.dai.bean.SendMessage;
-import com.dai.service.ChatService;
+import com.dai.util.SpringContextUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import javax.websocket.OnClose;
@@ -16,28 +14,25 @@ import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+//import org.springframework.beans.factory.annotation.Autowired;
+
 /**
  * Created by Administrator on 2017/4/22 0022.
  */
-@Service
-@Component
 @ServerEndpoint("/websocket")
+@Service
 public class WebSocket {
-
-    @Autowired
-    private ChatService chatService ;
+    ChatService chatService;
     private static int onlineCount = 0;
 
     private static CopyOnWriteArraySet<WebSocket> webSocketSet = new CopyOnWriteArraySet<>();
 
     private Session session;
 
-    public WebSocket() {
-    }
-
     @OnOpen
     public void onOpen(Session session) {
         this.session = session;
+        chatService = (ChatService) SpringContextUtil.getBean("chatService");
         System.out.println("session.getRequestParameterMap() = " + session.getRequestParameterMap());
         System.out.println("session.getRequestURI() = " + session.getRequestURI());
         System.out.println("session.getPathParameters() = " + session.getPathParameters());
@@ -62,7 +57,6 @@ public class WebSocket {
         System.out.println("clientMessage.getCtime() = " + receivedMessage.getRoomId());
         System.out.println("clientMessage.getMsg() = " + receivedMessage.getTimeStamp());
         System.out.println("clientMessage.getPost() = " + receivedMessage.getMessage());
-
         chatService.insert(receivedMessage);
         SendMessage sendMessage = new SendMessage();
         sendMessage.setMessage(receivedMessage.getMessage());

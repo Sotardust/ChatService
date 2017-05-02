@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by Administrator on 2017/4/19 0019.
  */
-@Service
+@Service("chatService")
 public class ChatService {
 
     @Autowired
@@ -21,7 +21,9 @@ public class ChatService {
     }
 
     public void insert(ReceivedMessage receivedMessage) {
+        System.out.println("receivedMessage = " + receivedMessage);
         chatMapper.insert(receivedMessage);
+        System.out.println("receivedMessage111 = " + receivedMessage);
     }
 
 }
