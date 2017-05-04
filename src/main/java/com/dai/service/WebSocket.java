@@ -12,6 +12,8 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 //import org.springframework.beans.factory.annotation.Autowired;
@@ -22,17 +24,18 @@ import java.util.concurrent.CopyOnWriteArraySet;
 @ServerEndpoint("/websocket")
 @Service
 public class WebSocket {
-    ChatService chatService;
+
     private static int onlineCount = 0;
 
     private static CopyOnWriteArraySet<WebSocket> webSocketSet = new CopyOnWriteArraySet<>();
 
     private Session session;
+    private static Map<WebSocket, Session> sessions = new HashMap<>();
 
     @OnOpen
     public void onOpen(Session session) {
         this.session = session;
-        chatService = (ChatService) SpringContextUtil.getBean("chatService");
+        sessions.put(this, session);
         System.out.println("session.getRequestParameterMap() = " + session.getRequestParameterMap());
         System.out.println("session.getRequestURI() = " + session.getRequestURI());
         System.out.println("session.getPathParameters() = " + session.getPathParameters());
@@ -44,6 +47,7 @@ public class WebSocket {
     @OnClose
     public void onClose() {
         webSocketSet.remove(this);
+        sessions.remove(this);
         subOnlineCount();
         System.out.println("有一链接关闭!当前在线人数为" + getOnlineCount());
     }
@@ -53,10 +57,11 @@ public class WebSocket {
         System.out.println("来自客户端的消息:" + message);
         ObjectMapper objectMapper = new ObjectMapper();
         ReceivedMessage receivedMessage = objectMapper.readValue(message, ReceivedMessage.class);
-        System.out.println("clientMessage.getCmd() = " + receivedMessage.getUserId());
-        System.out.println("clientMessage.getCtime() = " + receivedMessage.getRoomId());
-        System.out.println("clientMessage.getMsg() = " + receivedMessage.getTimeStamp());
-        System.out.println("clientMessage.getPost() = " + receivedMessage.getMessage());
+        System.out.println("clientMessage.getUserId() = " + receivedMessage.getUserId());
+        System.out.println("clientMessage.getRoomId() = " + receivedMessage.getRoomId());
+        System.out.println("clientMessage.getTimeStamp() = " + receivedMessage.getTimeStamp());
+        System.out.println("clientMessage.getMessage() = " + receivedMessage.getMessage());
+        ChatService chatService = (ChatService) SpringContextUtil.getBean("chatService");
         chatService.insert(receivedMessage);
         SendMessage sendMessage = new SendMessage();
         sendMessage.setMessage(receivedMessage.getMessage());
@@ -68,13 +73,14 @@ public class WebSocket {
         System.out.println("sendMessage = " + value);
         // 群发消息
         for (WebSocket item : webSocketSet) {
-            item.sendMessage(value);
+            System.out.println("item = " + item);
+            item.sendMessage(item, value);
         }
 
     }
 
-    private void sendMessage(String message) throws IOException {
-        this.session.getBasicRemote().sendText(message);
+    private void sendMessage(WebSocket webSocket, String message) throws IOException {
+        sessions.get(webSocket).getBasicRemote().sendText(message);
     }
 
     private static synchronized int getOnlineCount() {

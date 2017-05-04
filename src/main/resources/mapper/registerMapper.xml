@@ -8,8 +8,8 @@
     </select>
 
     <insert id="insertData" useGeneratedKeys="true">
-        INSERT INTO user (id, username, password, email, number)
-        VALUES (#{id}, #{username}, #{password}, #{email}, #{number})
+        INSERT INTO user (username, password, email, number)
+        VALUES (#{username}, #{password}, #{email}, #{number})
     </insert>
 
 </mapper>

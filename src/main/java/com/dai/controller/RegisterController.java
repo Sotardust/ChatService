@@ -40,7 +40,7 @@ public class RegisterController {
             registerService.insertData(user);
         } catch (Exception e) {
             error = e.getCause().toString();
-
+            value.put("success", "0");
         }
         value.put("error", error);
         return value;

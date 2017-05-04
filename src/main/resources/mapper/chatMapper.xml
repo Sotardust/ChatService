@@ -7,7 +7,7 @@
         FROM receive
     </select>
 
-    <insert id="insert" useGeneratedKeys="false" >
+    <insert id="insert" useGeneratedKeys="true" >
         INSERT INTO receive (roomId, userId, timeStamp, message)
         VALUES (#{roomId}, #{userId}, #{timeStamp}, #{message})
     </insert>
